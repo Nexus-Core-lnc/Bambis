@@ -2,10 +2,10 @@
 @import "tailwindcss";
 
 @theme {
-  /* Palette officielle du Collège Les Bambis */
-  --color-marine: #0f2c59; /* Bleu Marine  | RGB 15, 44, 89    | CMJN 100/85/35/30 */
-  --color-gold:   #f4b400; /* Jaune Doré   | RGB 244, 180, 0   | CMJN 0/28/100/4   */
-  --color-pure:   #ffffff; /* Blanc Pur    | RGB 255, 255, 255 | CMJN 0/0/0/0      */
+  /* Palette adaptée au logo du Collège Les Bambis */
+  --color-bambis-green: #2E7D32; /* Vert forêt (feuilles du logo) */
+  --color-bambis-gold:  #F4B400; /* Jaune doré (couronne et texte) */
+  --color-pure:         #ffffff; /* Blanc pur */
 
   /* Police */
   --font-comfortaa: var(--font-comfortaa), system-ui, sans-serif;
@@ -14,6 +14,6 @@
 html,
 body {
   font-family: var(--font-comfortaa);
-  color: var(--color-marine);
+  color: var(--color-bambis-green);
   background-color: var(--color-pure);
 }
