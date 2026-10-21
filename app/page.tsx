@@ -87,7 +87,6 @@ export default function HomePage() {
           }}
         >
           <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 lg:grid-cols-2 lg:gap-16 lg:px-12">
-            {/* Photo à gauche */}
             <div className="relative mx-auto w-full max-w-md">
               <div
                 className="pointer-events-none absolute -bottom-4 -left-4 h-full w-full rounded-3xl"
