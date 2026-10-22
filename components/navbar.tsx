@@ -12,6 +12,9 @@ import {
   faUserLock,
   faBars,
   faXmark,
+  faChevronDown,
+  faCalendarDays,
+  faBuildingColumns,
 } from "@fortawesome/free-solid-svg-icons";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 
@@ -19,20 +22,50 @@ import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 /*  Configuration                                                      */
 /* ------------------------------------------------------------------ */
 
-const BAMBIS_GREEN = "#2E7D32"; // Vert forêt extrait du logo
-const BAMBIS_GOLD = "#F4B400"; // Jaune doré extrait du logo
+const BAMBIS_GREEN = "#2E7D32";
+const BAMBIS_GOLD = "#F4B400";
 
-type NavItem = {
+type NavLeaf = {
   label: string;
   href: string;
   icon: IconDefinition;
 };
 
+type NavItem = {
+  label: string;
+  href?: string;
+  icon: IconDefinition;
+  children?: NavLeaf[];
+};
+
 const NAV_ITEMS: NavItem[] = [
-  { label: "À Propos", href: "/about", icon: faInfoCircle },
-  { label: "Offre Académique", href: "/offre-academique", icon: faGraduationCap },
-  { label: "Admissions & Scolarité", href: "/admissions", icon: faUserPlus },
-  { label: "Vie du Collège", href: "/vie-du-college", icon: faUsers },
+  { label: "À Propos", href: "/a-propos", icon: faInfoCircle },
+  {
+    label: "Offre Académique",
+    href: "/offre-academique",
+    icon: faGraduationCap,
+  },
+  {
+    label: "Admissions & Scolarité",
+    href: "/admissions",
+    icon: faUserPlus,
+  },
+  {
+    label: "Vie du Collège",
+    icon: faUsers,
+    children: [
+      {
+        label: "Vie Scolaire & Événements",
+        href: "/vie-scolaire",
+        icon: faCalendarDays,
+      },
+      {
+        label: "Clubs & Campus",
+        href: "/clubs-campus",
+        icon: faBuildingColumns,
+      },
+    ],
+  },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -41,6 +74,12 @@ const NAV_ITEMS: NavItem[] = [
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
+
+  const closeMobile = () => {
+    setIsOpen(false);
+    setOpenSubmenu(null);
+  };
 
   return (
     <header
@@ -51,10 +90,10 @@ export default function Navbar() {
       }}
     >
       <nav className="mx-auto flex h-full items-center justify-between gap-6 px-8 lg:px-12">
-        {/* ---------- LOGO / ACCUEIL (Uniquement l'image) ---------- */}
+        {/* ---------- LOGO ---------- */}
         <Link
           href="/"
-          onClick={() => setIsOpen(false)}
+          onClick={closeMobile}
           className="flex shrink-0 items-center transition-opacity hover:opacity-80"
           aria-label="Accueil — Collège Privé Laïc Bilingue Les Bambis"
         >
@@ -70,29 +109,91 @@ export default function Navbar() {
 
         {/* ---------- LIENS DESKTOP ---------- */}
         <ul className="hidden items-center justify-between gap-6 md:flex lg:gap-10">
-          {NAV_ITEMS.map((item) => (
-            <li key={item.href}>
-              <Link
-                href={item.href}
-                className="group relative flex items-center gap-2 text-sm font-semibold transition-colors lg:text-[15px]"
-                style={{ color: BAMBIS_GREEN }}
-              >
-                <FontAwesomeIcon
-                  icon={item.icon}
-                  className="text-base transition-colors group-hover:text-[#F4B400]"
-                />
-                <span className="whitespace-nowrap transition-colors group-hover:text-[#F4B400]">
-                  {item.label}
-                </span>
+          {NAV_ITEMS.map((item) =>
+            item.children ? (
+              /* ---- Item avec sous-menu ---- */
+              <li key={item.label} className="group relative">
+                <button
+                  type="button"
+                  aria-haspopup="true"
+                  className="relative flex items-center gap-2 text-sm font-semibold transition-colors lg:text-[15px]"
+                  style={{ color: BAMBIS_GREEN }}
+                >
+                  <FontAwesomeIcon
+                    icon={item.icon}
+                    className="text-base transition-colors group-hover:text-[#F4B400]"
+                  />
+                  <span className="whitespace-nowrap transition-colors group-hover:text-[#F4B400]">
+                    {item.label}
+                  </span>
+                  <FontAwesomeIcon
+                    icon={faChevronDown}
+                    className="text-[10px] transition-transform duration-300 group-hover:rotate-180 group-hover:text-[#F4B400]"
+                  />
+                  <span
+                    className="absolute -bottom-1.5 left-0 h-0.5 w-0 rounded-full transition-all duration-300 group-hover:w-full"
+                    style={{ backgroundColor: BAMBIS_GOLD }}
+                  />
+                </button>
 
-                {/* Soulignement animé */}
-                <span
-                  className="absolute -bottom-1.5 left-0 h-0.5 w-0 rounded-full transition-all duration-300 group-hover:w-full"
-                  style={{ backgroundColor: BAMBIS_GOLD }}
-                />
-              </Link>
-            </li>
-          ))}
+                {/* Panneau dropdown (pont invisible via pt-3) */}
+                <div className="invisible absolute left-1/2 top-full -translate-x-1/2 pt-3 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+                  <ul
+                    className="w-72 overflow-hidden rounded-2xl border bg-white/95 shadow-2xl backdrop-blur-lg"
+                    style={{ borderColor: `${BAMBIS_GOLD}55` }}
+                  >
+                    {item.children.map((child) => (
+                      <li key={child.href}>
+                        <Link
+                          href={child.href}
+                          className="group/link flex items-center gap-3 px-4 py-3 text-sm font-semibold transition-colors hover:bg-[#2E7D32]/5"
+                          style={{ color: BAMBIS_GREEN }}
+                        >
+                          <span
+                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-transform duration-300 group-hover/link:scale-110"
+                            style={{
+                              backgroundColor: `${BAMBIS_GOLD}22`,
+                              color: BAMBIS_GOLD,
+                              border: `1px solid ${BAMBIS_GOLD}55`,
+                            }}
+                          >
+                            <FontAwesomeIcon
+                              icon={child.icon}
+                              className="text-xs"
+                            />
+                          </span>
+                          <span className="flex-1 transition-colors group-hover/link:text-[#F4B400]">
+                            {child.label}
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </li>
+            ) : (
+              /* ---- Item simple ---- */
+              <li key={item.href}>
+                <Link
+                  href={item.href as string}
+                  className="group relative flex items-center gap-2 text-sm font-semibold transition-colors lg:text-[15px]"
+                  style={{ color: BAMBIS_GREEN }}
+                >
+                  <FontAwesomeIcon
+                    icon={item.icon}
+                    className="text-base transition-colors group-hover:text-[#F4B400]"
+                  />
+                  <span className="whitespace-nowrap transition-colors group-hover:text-[#F4B400]">
+                    {item.label}
+                  </span>
+                  <span
+                    className="absolute -bottom-1.5 left-0 h-0.5 w-0 rounded-full transition-all duration-300 group-hover:w-full"
+                    style={{ backgroundColor: BAMBIS_GOLD }}
+                  />
+                </Link>
+              </li>
+            )
+          )}
         </ul>
 
         {/* ---------- CTA DESKTOP ---------- */}
@@ -122,32 +223,86 @@ export default function Navbar() {
       {/* ---------- MENU MOBILE DÉROULANT ---------- */}
       <div
         id="mobile-menu"
-        className={`absolute left-0 top-full w-full overflow-hidden rounded-b-3xl shadow-xl transition-[max-height,opacity] duration-300 ease-in-out md:hidden bg-gradient-to-b from-white/90 to-cyan-50/90 backdrop-blur-lg ${isOpen ? "max-h-[75vh] opacity-100" : "max-h-0 opacity-0"
-          }`}
+        className={`absolute left-0 top-full w-full overflow-hidden rounded-b-3xl shadow-xl transition-[max-height,opacity] duration-300 ease-in-out md:hidden bg-gradient-to-b from-white/95 to-cyan-50/95 backdrop-blur-lg ${
+          isOpen ? "max-h-[80vh] opacity-100" : "max-h-0 opacity-0"
+        }`}
       >
         <ul className="flex flex-col gap-1 px-6 pb-4 pt-4">
-          {NAV_ITEMS.map((item) => (
-            <li key={item.href}>
-              <Link
-                href={item.href}
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-colors hover:bg-[#2E7D32]/5"
-                style={{ color: BAMBIS_GREEN }}
-              >
-                <FontAwesomeIcon
-                  icon={item.icon}
-                  className="w-5 text-center text-[#F4B400]"
-                />
-                {item.label}
-              </Link>
-            </li>
-          ))}
+          {NAV_ITEMS.map((item) =>
+            item.children ? (
+              <li key={item.label}>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setOpenSubmenu((prev) =>
+                      prev === item.label ? null : item.label
+                    )
+                  }
+                  aria-expanded={openSubmenu === item.label}
+                  className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-colors hover:bg-[#2E7D32]/5"
+                  style={{ color: BAMBIS_GREEN }}
+                >
+                  <FontAwesomeIcon
+                    icon={item.icon}
+                    className="w-5 text-center text-[#F4B400]"
+                  />
+                  <span className="flex-1 text-left">{item.label}</span>
+                  <FontAwesomeIcon
+                    icon={faChevronDown}
+                    className={`text-xs transition-transform duration-300 ${
+                      openSubmenu === item.label ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                <ul
+                  className={`overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out ${
+                    openSubmenu === item.label
+                      ? "max-h-60 opacity-100"
+                      : "max-h-0 opacity-0"
+                  }`}
+                >
+                  {item.children.map((child) => (
+                    <li key={child.href}>
+                      <Link
+                        href={child.href}
+                        onClick={closeMobile}
+                        className="flex items-center gap-3 rounded-xl py-2.5 pl-12 pr-4 text-sm font-medium transition-colors hover:bg-[#2E7D32]/5"
+                        style={{ color: BAMBIS_GREEN }}
+                      >
+                        <FontAwesomeIcon
+                          icon={child.icon}
+                          className="w-4 text-center text-[#F4B400]"
+                        />
+                        {child.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ) : (
+              <li key={item.href}>
+                <Link
+                  href={item.href as string}
+                  onClick={closeMobile}
+                  className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-colors hover:bg-[#2E7D32]/5"
+                  style={{ color: BAMBIS_GREEN }}
+                >
+                  <FontAwesomeIcon
+                    icon={item.icon}
+                    className="w-5 text-center text-[#F4B400]"
+                  />
+                  {item.label}
+                </Link>
+              </li>
+            )
+          )}
         </ul>
 
         <div className="px-6 pb-6">
           <Link
             href="/portail-parents"
-            onClick={() => setIsOpen(false)}
+            onClick={closeMobile}
             className="flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold shadow-md transition-transform active:scale-95"
             style={{ backgroundColor: BAMBIS_GOLD, color: BAMBIS_GREEN }}
           >

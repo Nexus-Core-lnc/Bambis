@@ -13,6 +13,8 @@ import {
   faInfoCircle,
   faUserLock,
   faMapPin,
+  faCalendarDays,
+  faBuildingColumns,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   faFacebookF,
@@ -41,7 +43,16 @@ const QUICK_LINKS = [
     href: "/admissions",
     icon: faUserPlus,
   },
-  { label: "Vie du Collège", href: "/vie-du-college", icon: faUsers },
+  {
+    label: "Vie Scolaire & Événements",
+    href: "/vie-scolaire",
+    icon: faCalendarDays,
+  },
+  {
+    label: "Clubs & Campus",
+    href: "/clubs-campus",
+    icon: faBuildingColumns,
+  },
   { label: "Portail Parents", href: "/portail-parents", icon: faUserLock },
 ];
 
@@ -215,7 +226,7 @@ export default function Footer() {
               Nous contacter
             </h4>
 
-            {/* ---------- Coordonnées (espacement large) ---------- */}
+            {/* ---------- Coordonnées ---------- */}
             <ul className="mb-10 grid gap-5 text-sm text-gray-300">
               {/* Adresse */}
               <li className="flex min-h-[60px] items-center gap-3 rounded-xl px-2 py-3">
@@ -290,7 +301,7 @@ export default function Footer() {
               </li>
             </ul>
 
-            {/* ---------- RÉSEAUX SOCIAUX (ULTRA DISCRETS) ---------- */}
+            {/* ---------- RÉSEAUX SOCIAUX ---------- */}
             <div className="mt-auto">
               <h4
                 className="mb-3 text-[10px] font-bold uppercase tracking-widest"
