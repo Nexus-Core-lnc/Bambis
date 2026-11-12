@@ -10,7 +10,6 @@ import {
   faLaptopCode,
   faBookOpen,
   faMusic,
-  faCamera,
   faTrophy,
   faCalendarDays,
   faHeart,
@@ -18,9 +17,12 @@ import {
   faStar,
   faCheckCircle,
   faArrowRight,
+  faArrowDown,
   faFaceSmile,
-  faChalkboardUser,
+  faAward,
+  faGraduationCap,
   faLeaf,
+  faQuoteLeft,
 } from "@fortawesome/free-solid-svg-icons";
 
 /* ------------------------------------------------------------------ */
@@ -31,43 +33,67 @@ const BAMBIS_GREEN = "#2E7D32";
 const BAMBIS_GOLD  = "#F4B400";
 const DARK_BG      = "#0B1F14";
 
-/* Clubs et activités */
+const CARD = {
+  backgroundColor: "rgba(255, 255, 255, 0.04)",
+  borderColor: `${BAMBIS_GOLD}33`,
+} as const;
+
+/* Tuiles de la mosaïque du hero (le logo prend la place centrale) */
+const HERO_TILES = [
+  { icon: faFutbol, label: "Sport", color: "#EF4444" },
+  { icon: faMicrophone, label: "Débat", color: "#8B5CF6" },
+  { icon: faPalette, label: "Arts", color: "#EC4899" },
+  { icon: faMusic, label: "Musique", color: "#F59E0B" },
+  // ← logo ici
+  { icon: faFlask, label: "Sciences", color: "#10B981" },
+  { icon: faLaptopCode, label: "Code", color: "#3B82F6" },
+  { icon: faTrophy, label: "Tournois", color: BAMBIS_GOLD },
+  { icon: faHeart, label: "Solidarité", color: BAMBIS_GREEN },
+];
+
+/* Clubs et activités (span = largeur de la carte sur grand écran) */
 const CLUBS = [
   {
     icon: faFutbol,
     title: "Club Sportif",
     desc: "Football, basketball, athlétisme, natation. Des compétitions inter-classes et inter-établissements toute l'année.",
     color: "#EF4444",
+    span: "lg:col-span-2",
   },
   {
     icon: faMicrophone,
     title: "Club de Débat",
     desc: "Art oratoire, éloquence et débats bilingues pour développer la confiance en soi et l'esprit critique.",
     color: "#8B5CF6",
+    span: "",
   },
   {
     icon: faPalette,
     title: "Club Artistique",
     desc: "Arts plastiques, peinture, sculpture et expositions pour éveiller la créativité de chaque élève.",
     color: "#EC4899",
+    span: "",
   },
   {
     icon: faMusic,
     title: "Chorale & Musique",
     desc: "Chorale officielle du collège, apprentissage d'instruments et spectacles de fin d'année.",
     color: "#F59E0B",
+    span: "lg:col-span-2",
   },
   {
     icon: faFlask,
     title: "Club Scientifique",
     desc: "Expériences pratiques, projets de recherche et participation aux Olympiades scientifiques.",
     color: "#10B981",
+    span: "lg:col-span-2",
   },
   {
     icon: faLaptopCode,
     title: "Club Informatique",
     desc: "Programmation, robotique et création de projets numériques. Initiation au codage dès le primaire.",
     color: "#3B82F6",
+    span: "",
   },
 ];
 
@@ -98,13 +124,13 @@ const EVENTS = [
     desc: "Familles et futurs élèves découvrent l'établissement, ses clubs et ses projets.",
   },
   {
-    icon: faChalkboardUser,
+    icon: faAward,
     month: "Juin",
     title: "Remise des prix",
     desc: "Célébration des réussites académiques et des talents de chaque élève.",
   },
   {
-    icon: faChalkboardUser,
+    icon: faGraduationCap,
     month: "Juillet",
     title: "Cérémonie de fin d'année",
     desc: "Gala, spectacles et discours de fin d'année pour clôturer la saison scolaire.",
@@ -145,6 +171,72 @@ const FACILITIES = [
   { icon: faMusic, label: "Salle de musique & chorale" },
 ];
 
+const STATS = [
+  { value: "20+", label: "Clubs" },
+  { value: "15+", label: "Événements" },
+  { value: "100%", label: "Engagement" },
+];
+
+/* ------------------------------------------------------------------ */
+/*  Éléments réutilisables                                             */
+/* ------------------------------------------------------------------ */
+
+function SectionHeader({
+  label,
+  title,
+  subtitle,
+}: {
+  label: string;
+  title: React.ReactNode;
+  subtitle?: string;
+}) {
+  return (
+    <div className="mb-14 text-center">
+      <p
+        className="mb-3 text-xs font-bold uppercase tracking-widest"
+        style={{ color: BAMBIS_GOLD }}
+      >
+        {label}
+      </p>
+      <h2 className="text-3xl font-bold text-white lg:text-4xl">{title}</h2>
+      {subtitle && <p className="mt-3 text-sm text-gray-400">{subtitle}</p>}
+    </div>
+  );
+}
+
+function HeroTile({
+  tile,
+  gridIndex,
+}: {
+  tile: (typeof HERO_TILES)[number];
+  gridIndex: number;
+}) {
+  return (
+    <div
+      className={`group flex aspect-square flex-col items-center justify-center gap-2 rounded-3xl border p-3 backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:scale-105 ${
+        gridIndex % 3 === 1 ? "translate-y-6" : ""
+      }`}
+      style={{
+        backgroundColor: `${tile.color}1f`,
+        borderColor: `${tile.color}66`,
+      }}
+    >
+      <span
+        className="flex h-12 w-12 items-center justify-center rounded-2xl shadow-lg transition-transform duration-300 group-hover:scale-110 lg:h-14 lg:w-14"
+        style={{
+          backgroundColor: tile.color,
+          color: tile.color === BAMBIS_GOLD ? DARK_BG : "#ffffff",
+        }}
+      >
+        <FontAwesomeIcon icon={tile.icon} className="text-xl" />
+      </span>
+      <span className="text-[11px] font-bold text-white lg:text-xs">
+        {tile.label}
+      </span>
+    </div>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 /*  Composant                                                          */
 /* ------------------------------------------------------------------ */
@@ -152,9 +244,9 @@ const FACILITIES = [
 export default function VieDuCollegePage() {
   return (
     <main className="flex flex-col">
-      {/* ================= HERO ================= */}
+      {/* ================= HERO : MOSAIQUE DE TALENTS ================= */}
       <section
-        className="relative min-h-[60vh] w-full overflow-hidden"
+        className="relative flex min-h-[85vh] w-full items-center overflow-hidden"
         style={{
           background: `linear-gradient(135deg, ${DARK_BG} 0%, #10321E 55%, #143F26 100%)`,
         }}
@@ -168,29 +260,11 @@ export default function VieDuCollegePage() {
           style={{ backgroundColor: `${BAMBIS_GREEN}44` }}
         />
 
-        <div className="relative mx-auto flex max-w-7xl flex-col items-center gap-10 px-6 py-20 text-center lg:flex-row lg:gap-16 lg:px-12 lg:py-24 lg:text-left">
-          <div className="shrink-0">
-            <div
-              className="flex h-40 w-40 items-center justify-center rounded-full shadow-2xl lg:h-52 lg:w-52"
-              style={{
-                backgroundColor: "#ffffff",
-                boxShadow: `0 0 60px ${BAMBIS_GOLD}55`,
-              }}
-            >
-              <Image
-                src="/logo.png"
-                alt="Logo du Collège Les Bambis"
-                width={180}
-                height={180}
-                priority
-                className="h-32 w-32 object-contain lg:h-44 lg:w-44"
-              />
-            </div>
-          </div>
-
-          <div className="max-w-2xl">
+        <div className="relative mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-16 px-6 py-20 lg:grid-cols-2 lg:px-12">
+          {/* ============ TEXTE ============ */}
+          <div className="text-center lg:text-left">
             <p
-              className="mb-4 inline-block rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-widest"
+              className="mb-6 inline-block rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-widest"
               style={{
                 backgroundColor: `${BAMBIS_GOLD}22`,
                 color: BAMBIS_GOLD,
@@ -201,75 +275,161 @@ export default function VieDuCollegePage() {
             </p>
 
             <h1
-              className="text-4xl font-bold leading-tight text-white lg:text-5xl"
+              className="text-4xl font-extrabold leading-[1.1] text-white sm:text-5xl lg:text-6xl"
               style={{ textShadow: "0 4px 20px rgba(0,0,0,0.4)" }}
             >
-              Une vie scolaire <br />
-              <span style={{ color: BAMBIS_GOLD }}>riche et épanouissante</span>
+              Une vie scolaire{" "}
+              <span className="block" style={{ color: BAMBIS_GOLD }}>
+                riche et épanouissante
+              </span>
             </h1>
 
-            <p className="mt-6 text-base leading-relaxed text-gray-200 lg:text-lg">
+            <div
+              className="mx-auto mt-6 h-1 w-24 rounded-full lg:mx-0"
+              style={{ backgroundColor: BAMBIS_GOLD }}
+            />
+
+            <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-gray-200 lg:mx-0 lg:text-lg">
               Clubs, événements, sport et culture : au-delà des cours, nous
-              offrons à chaque élève un environnement où il peut s&apos;épanouir
-              et révéler ses talents.
+              offrons à chaque élève un environnement où il peut
+              s&apos;épanouir et révéler ses talents.
             </p>
+
+            <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row lg:justify-start">
+              <a
+                href="#clubs"
+                className="group inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold shadow-lg transition-all duration-300 hover:-translate-y-1"
+                style={{ backgroundColor: BAMBIS_GOLD, color: DARK_BG }}
+              >
+                Découvrir les clubs
+                <FontAwesomeIcon
+                  icon={faArrowDown}
+                  className="transition-transform group-hover:translate-y-1"
+                />
+              </a>
+              <Link
+                href="/admissions"
+                className="inline-flex items-center justify-center gap-2 rounded-full border-2 px-7 py-3.5 text-sm font-bold transition-all duration-300 hover:-translate-y-1 hover:bg-white/10"
+                style={{ borderColor: "#ffffff", color: "#ffffff" }}
+              >
+                Nous rejoindre
+              </Link>
+            </div>
+          </div>
+
+          {/* ============ MOSAIQUE ============ */}
+          <div className="relative mx-auto w-full max-w-md pb-8 pt-4">
+            <div
+              className="absolute inset-0 rounded-3xl blur-3xl"
+              style={{ backgroundColor: `${BAMBIS_GOLD}22` }}
+            />
+
+            <div className="relative grid grid-cols-3 gap-4">
+              {HERO_TILES.slice(0, 4).map((tile, i) => (
+                <HeroTile key={tile.label} tile={tile} gridIndex={i} />
+              ))}
+
+              {/* Logo au centre */}
+              <div
+                className="flex aspect-square translate-y-6 items-center justify-center rounded-3xl"
+                style={{
+                  backgroundColor: "#ffffff",
+                  boxShadow: `0 0 50px ${BAMBIS_GOLD}66`,
+                }}
+              >
+                <Image
+                  src="/logo.png"
+                  alt="Logo du Collège Les Bambis"
+                  width={120}
+                  height={120}
+                  priority
+                  className="h-[72%] w-[72%] object-contain"
+                />
+              </div>
+
+              {HERO_TILES.slice(4).map((tile, i) => (
+                <HeroTile key={tile.label} tile={tile} gridIndex={i + 5} />
+              ))}
+            </div>
+
+            {/* Badges flottants */}
+            <div
+              className="absolute -right-2 -top-3 rounded-2xl border px-4 py-2.5 text-center shadow-xl backdrop-blur-md lg:-right-6"
+              style={{
+                backgroundColor: "rgba(255, 255, 255, 0.08)",
+                borderColor: `${BAMBIS_GOLD}55`,
+              }}
+            >
+              <p
+                className="text-xl font-bold leading-none"
+                style={{ color: BAMBIS_GOLD }}
+              >
+                20+
+              </p>
+              <p className="mt-1 text-[11px] text-gray-200">Clubs</p>
+            </div>
+            <div
+              className="absolute -bottom-2 -left-2 rounded-2xl border px-4 py-2.5 text-center shadow-xl backdrop-blur-md lg:-left-6"
+              style={{
+                backgroundColor: "rgba(255, 255, 255, 0.08)",
+                borderColor: `${BAMBIS_GOLD}55`,
+              }}
+            >
+              <p
+                className="text-xl font-bold leading-none"
+                style={{ color: BAMBIS_GOLD }}
+              >
+                15+
+              </p>
+              <p className="mt-1 text-[11px] text-gray-200">Événements</p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ================= CLUBS ================= */}
       <section
+        id="clubs"
         className="w-full py-20"
         style={{
           background: `linear-gradient(180deg, #0E2417 0%, #10321E 100%)`,
         }}
       >
         <div className="mx-auto max-w-7xl px-6 lg:px-12">
-          <div className="mb-14 text-center">
-            <p
-              className="mb-3 text-xs font-bold uppercase tracking-widest"
-              style={{ color: BAMBIS_GOLD }}
-            >
-              Clubs & Activités
-            </p>
-            <h2 className="text-3xl font-bold text-white lg:text-4xl">
-              Découvrez nos clubs
-            </h2>
-            <p className="mt-3 text-sm text-gray-400">
-              Plus de 20 activités pour tous les goûts et tous les talents
-            </p>
-          </div>
+          <SectionHeader
+            label="Clubs & Activités"
+            title="Découvrez nos clubs"
+            subtitle="Plus de 20 activités pour tous les goûts et tous les talents"
+          />
 
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {CLUBS.map((club) => (
               <div
                 key={club.title}
-                className="group relative overflow-hidden rounded-3xl border p-7 backdrop-blur-sm transition-all duration-300 hover:-translate-y-2"
-                style={{
-                  backgroundColor: "rgba(255, 255, 255, 0.04)",
-                  borderColor: `${BAMBIS_GOLD}33`,
-                }}
+                className={`group relative overflow-hidden rounded-3xl border p-7 backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 ${club.span}`}
+                style={CARD}
               >
                 {/* Halo coloré */}
                 <div
-                  className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full blur-3xl opacity-30"
+                  className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full opacity-30 blur-3xl"
                   style={{ backgroundColor: club.color }}
                 />
 
-                <div className="relative">
+                <div className="relative flex items-start gap-5">
                   <div
-                    className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg transition-transform duration-300 group-hover:scale-110"
+                    className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl shadow-lg transition-transform duration-300 group-hover:scale-110"
                     style={{ backgroundColor: club.color, color: "#ffffff" }}
                   >
                     <FontAwesomeIcon icon={club.icon} className="text-2xl" />
                   </div>
-
-                  <h3 className="mb-3 text-xl font-bold text-white">
-                    {club.title}
-                  </h3>
-                  <p className="text-sm leading-relaxed text-gray-300">
-                    {club.desc}
-                  </p>
+                  <div>
+                    <h3 className="mb-2 text-xl font-bold text-white">
+                      {club.title}
+                    </h3>
+                    <p className="text-sm leading-relaxed text-gray-300">
+                      {club.desc}
+                    </p>
+                  </div>
                 </div>
               </div>
             ))}
@@ -277,58 +437,85 @@ export default function VieDuCollegePage() {
         </div>
       </section>
 
-      {/* ================= EVENEMENTS ================= */}
+      {/* ================= EVENEMENTS : FRISE DE L'ANNEE ================= */}
       <section
         className="w-full py-20"
         style={{
           background: `linear-gradient(180deg, #10321E 0%, #0B1F14 100%)`,
         }}
       >
-        <div className="mx-auto max-w-7xl px-6 lg:px-12">
-          <div className="mb-14 text-center">
-            <p
-              className="mb-3 text-xs font-bold uppercase tracking-widest"
-              style={{ color: BAMBIS_GOLD }}
-            >
-              Temps forts
-            </p>
-            <h2 className="text-3xl font-bold text-white lg:text-4xl">
-              Les événements de l&apos;année
-            </h2>
-          </div>
+        <div className="mx-auto max-w-5xl px-6 lg:px-12">
+          <SectionHeader
+            label="Temps forts"
+            title="Les événements de l'année"
+          />
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {EVENTS.map((event) => (
-              <div
-                key={event.title}
-                className="group flex items-start gap-5 rounded-2xl border p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1"
-                style={{
-                  backgroundColor: "rgba(255, 255, 255, 0.04)",
-                  borderColor: `${BAMBIS_GOLD}33`,
-                }}
-              >
+          <div className="relative">
+            {/* Ligne verticale */}
+            <div
+              className="absolute left-4 top-0 h-full w-0.5 md:left-1/2 md:-translate-x-1/2"
+              style={{
+                background: `linear-gradient(180deg, ${BAMBIS_GOLD}00, ${BAMBIS_GOLD}, ${BAMBIS_GOLD}00)`,
+              }}
+            />
+
+            <div className="space-y-10">
+              {EVENTS.map((event, idx) => (
                 <div
-                  className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl shadow-lg transition-transform duration-300 group-hover:scale-110"
-                  style={{ backgroundColor: BAMBIS_GOLD, color: DARK_BG }}
+                  key={event.title}
+                  className={`relative flex flex-col items-start gap-4 md:items-center ${
+                    idx % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
+                  }`}
                 >
-                  <FontAwesomeIcon icon={event.icon} className="text-xl" />
-                </div>
-                <div>
-                  <p
-                    className="mb-1 text-xs font-bold uppercase tracking-widest"
-                    style={{ color: BAMBIS_GOLD }}
+                  {/* Carte */}
+                  <div className="ml-14 w-full md:ml-0 md:w-1/2 md:px-10">
+                    <div
+                      className="rounded-2xl border p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1"
+                      style={CARD}
+                    >
+                      <p
+                        className="mb-1 text-xs font-bold uppercase tracking-widest md:hidden"
+                        style={{ color: BAMBIS_GOLD }}
+                      >
+                        {event.month}
+                      </p>
+                      <h3 className="mb-2 text-lg font-bold text-white">
+                        {event.title}
+                      </h3>
+                      <p className="text-sm leading-relaxed text-gray-300">
+                        {event.desc}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Point avec icône */}
+                  <div
+                    className="absolute left-4 top-4 z-10 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full border-4 shadow-lg md:left-1/2 md:top-1/2 md:-translate-y-1/2"
+                    style={{
+                      backgroundColor: BAMBIS_GOLD,
+                      color: DARK_BG,
+                      borderColor: DARK_BG,
+                    }}
                   >
-                    {event.month}
-                  </p>
-                  <h3 className="mb-2 text-lg font-bold text-white">
-                    {event.title}
-                  </h3>
-                  <p className="text-sm leading-relaxed text-gray-300">
-                    {event.desc}
-                  </p>
+                    <FontAwesomeIcon icon={event.icon} className="text-xs" />
+                  </div>
+
+                  {/* Mois (côté opposé, desktop) */}
+                  <div
+                    className={`hidden md:block md:w-1/2 md:px-10 ${
+                      idx % 2 === 0 ? "md:text-left" : "md:text-right"
+                    }`}
+                  >
+                    <p
+                      className="text-3xl font-extrabold uppercase tracking-wide lg:text-4xl"
+                      style={{ color: `${BAMBIS_GOLD}66` }}
+                    >
+                      {event.month}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -341,27 +528,19 @@ export default function VieDuCollegePage() {
         }}
       >
         <div className="mx-auto max-w-7xl px-6 lg:px-12">
-          <div className="mb-14 text-center">
-            <p
-              className="mb-3 text-xs font-bold uppercase tracking-widest"
-              style={{ color: BAMBIS_GOLD }}
-            >
-              Notre esprit
-            </p>
-            <h2 className="text-3xl font-bold text-white lg:text-4xl">
-              Les valeurs qui nous animent
-            </h2>
-          </div>
+          <SectionHeader
+            label="Notre esprit"
+            title="Les valeurs qui nous animent"
+          />
 
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
-            {VALUES.map((value) => (
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4 lg:pb-10">
+            {VALUES.map((value, idx) => (
               <div
                 key={value.title}
-                className="group rounded-2xl border p-6 text-center backdrop-blur-sm transition-all duration-300 hover:-translate-y-2"
-                style={{
-                  backgroundColor: "rgba(255, 255, 255, 0.04)",
-                  borderColor: `${BAMBIS_GOLD}33`,
-                }}
+                className={`group rounded-2xl border p-6 text-center backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 ${
+                  idx % 2 === 1 ? "lg:translate-y-10" : ""
+                }`}
+                style={CARD}
               >
                 <div
                   className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg transition-transform duration-300 group-hover:scale-110"
@@ -388,8 +567,8 @@ export default function VieDuCollegePage() {
           background: `linear-gradient(180deg, #0E2417 0%, #10321E 100%)`,
         }}
       >
-        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 lg:grid-cols-2 lg:px-12">
-          <div>
+        <div className="mx-auto max-w-6xl px-6 lg:px-12">
+          <div className="mx-auto mb-12 max-w-3xl text-center">
             <p
               className="mb-3 text-xs font-bold uppercase tracking-widest"
               style={{ color: BAMBIS_GOLD }}
@@ -399,92 +578,80 @@ export default function VieDuCollegePage() {
             <h2 className="mb-6 text-3xl font-bold text-white lg:text-4xl">
               Un cadre moderne et adapté
             </h2>
-            <p className="mb-8 leading-relaxed text-gray-300">
+            <p className="leading-relaxed text-gray-300">
               Le Collège Les Bambis dispose d&apos;infrastructures modernes
               conçues pour favoriser l&apos;apprentissage, la créativité et
               l&apos;épanouissement de chaque élève.
             </p>
-
-            <ul className="space-y-4">
-              {FACILITIES.map((item) => (
-                <li key={item.label} className="flex items-center gap-4">
-                  <span
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
-                    style={{
-                      backgroundColor: `${BAMBIS_GOLD}1a`,
-                      color: BAMBIS_GOLD,
-                      border: `1px solid ${BAMBIS_GOLD}44`,
-                    }}
-                  >
-                    <FontAwesomeIcon icon={item.icon} className="text-sm" />
-                  </span>
-                  <span className="text-gray-200">{item.label}</span>
-                </li>
-              ))}
-            </ul>
           </div>
 
-          {/* Carte témoignage */}
+          {/* Tuiles installations */}
+          <div className="mb-12 grid grid-cols-2 gap-4 md:grid-cols-3">
+            {FACILITIES.map((item) => (
+              <div
+                key={item.label}
+                className="group flex flex-col items-center gap-3 rounded-2xl border p-6 text-center backdrop-blur-sm transition-all duration-300 hover:-translate-y-1"
+                style={CARD}
+              >
+                <span
+                  className="flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110"
+                  style={{
+                    backgroundColor: `${BAMBIS_GOLD}1a`,
+                    color: BAMBIS_GOLD,
+                    border: `1px solid ${BAMBIS_GOLD}44`,
+                  }}
+                >
+                  <FontAwesomeIcon icon={item.icon} className="text-lg" />
+                </span>
+                <span className="text-sm font-semibold text-gray-200">
+                  {item.label}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* Témoignage + chiffres */}
           <div
             className="relative overflow-hidden rounded-3xl border p-8 backdrop-blur-sm lg:p-12"
-            style={{
-              backgroundColor: "rgba(255, 255, 255, 0.04)",
-              borderColor: `${BAMBIS_GOLD}33`,
-            }}
+            style={CARD}
           >
             <div
               className="absolute -top-20 -right-20 h-60 w-60 rounded-full blur-3xl"
               style={{ backgroundColor: `${BAMBIS_GOLD}22` }}
             />
-            <div className="relative">
-              <div
-                className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg"
-                style={{ backgroundColor: BAMBIS_GOLD, color: DARK_BG }}
-              >
-                <FontAwesomeIcon icon={faCamera} className="text-2xl" />
+
+            <div className="relative grid grid-cols-1 items-center gap-10 lg:grid-cols-[1.5fr_1fr]">
+              <div>
+                <FontAwesomeIcon
+                  icon={faQuoteLeft}
+                  className="mb-5 text-4xl"
+                  style={{ color: BAMBIS_GOLD }}
+                />
+                <p className="mb-6 text-lg font-medium italic leading-relaxed text-gray-100 lg:text-xl">
+                  « Ce que je préfère au collège, c&apos;est la diversité des
+                  clubs. J&apos;ai pu découvrir la robotique, le théâtre et
+                  même participer à un tournoi de basketball ! »
+                </p>
+                <p className="text-sm font-bold" style={{ color: BAMBIS_GOLD }}>
+                  — Un élève de 3ᵉ
+                </p>
               </div>
-              <p className="mb-6 text-lg font-medium italic leading-relaxed text-gray-100 lg:text-xl">
-                « Ce que je préfère au collège, c&apos;est la diversité des
-                clubs. J&apos;ai pu découvrir la robotique, le théâtre et
-                même participer à un tournoi de basketball ! »
-              </p>
-              <p className="text-sm font-bold" style={{ color: BAMBIS_GOLD }}>
-                — Un élève de 3ᵉ
-              </p>
 
               <div
-                className="my-8 h-px w-full"
-                style={{ backgroundColor: `${BAMBIS_GOLD}33` }}
-              />
-
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <p
-                    className="text-2xl font-bold lg:text-3xl"
-                    style={{ color: BAMBIS_GOLD }}
-                  >
-                    20+
-                  </p>
-                  <p className="mt-1 text-xs text-gray-300">Clubs</p>
-                </div>
-                <div>
-                  <p
-                    className="text-2xl font-bold lg:text-3xl"
-                    style={{ color: BAMBIS_GOLD }}
-                  >
-                    15+
-                  </p>
-                  <p className="mt-1 text-xs text-gray-300">Événements</p>
-                </div>
-                <div>
-                  <p
-                    className="text-2xl font-bold lg:text-3xl"
-                    style={{ color: BAMBIS_GOLD }}
-                  >
-                    100%
-                  </p>
-                  <p className="mt-1 text-xs text-gray-300">Engagement</p>
-                </div>
+                className="grid grid-cols-3 gap-4 border-t pt-8 text-center lg:grid-cols-1 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0 lg:text-left"
+                style={{ borderColor: `${BAMBIS_GOLD}33` }}
+              >
+                {STATS.map((s) => (
+                  <div key={s.label}>
+                    <p
+                      className="text-3xl font-bold lg:text-4xl"
+                      style={{ color: BAMBIS_GOLD }}
+                    >
+                      {s.value}
+                    </p>
+                    <p className="mt-1 text-xs text-gray-300">{s.label}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -498,23 +665,24 @@ export default function VieDuCollegePage() {
           background: `linear-gradient(135deg, #0B1F14 0%, #143F26 100%)`,
         }}
       >
-        <div className="mx-auto max-w-4xl px-6 text-center lg:px-12">
-          <div
-            className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg"
-            style={{ backgroundColor: BAMBIS_GOLD, color: DARK_BG }}
-          >
-            <FontAwesomeIcon icon={faUsers} className="text-2xl" />
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-8 px-6 text-center lg:flex-row lg:justify-between lg:px-12 lg:text-left">
+          <div className="max-w-2xl">
+            <div
+              className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg lg:mx-0"
+              style={{ backgroundColor: BAMBIS_GOLD, color: DARK_BG }}
+            >
+              <FontAwesomeIcon icon={faUsers} className="text-2xl" />
+            </div>
+            <h2 className="mb-4 text-3xl font-bold text-white lg:text-4xl">
+              Envie de rejoindre notre communauté ?
+            </h2>
+            <p className="text-lg text-gray-300">
+              Découvrez notre procédure d&apos;admission et venez visiter notre
+              établissement lors de nos journées portes ouvertes.
+            </p>
           </div>
 
-          <h2 className="mb-4 text-3xl font-bold text-white lg:text-4xl">
-            Envie de rejoindre notre communauté ?
-          </h2>
-          <p className="mb-8 text-lg text-gray-300">
-            Découvrez notre procédure d&apos;admission et venez visiter notre
-            établissement lors de nos journées portes ouvertes.
-          </p>
-
-          <div className="flex flex-col justify-center gap-4 sm:flex-row">
+          <div className="flex shrink-0 flex-col gap-4 sm:flex-row">
             <Link
               href="/admissions"
               className="group inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 text-sm font-bold shadow-lg transition-all duration-300 hover:-translate-y-1"

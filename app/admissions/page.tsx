@@ -6,9 +6,9 @@ import {
   faFileLines,
   faClipboardCheck,
   faCalendarCheck,
-  faMoneyBillWave,
   faCheckCircle,
   faArrowRight,
+  faArrowDown,
   faUsers,
   faGraduationCap,
   faFileSignature,
@@ -29,6 +29,11 @@ import {
 const BAMBIS_GREEN = "#2E7D32";
 const BAMBIS_GOLD  = "#F4B400";
 const DARK_BG      = "#0B1F14";
+
+const CARD = {
+  backgroundColor: "rgba(255, 255, 255, 0.04)",
+  borderColor: `${BAMBIS_GOLD}33`,
+} as const;
 
 /* Étapes de la procédure d'admission */
 const STEPS = [
@@ -82,6 +87,7 @@ const FEES = [
       "Fournitures incluses",
       "Cantine optionnelle",
     ],
+    highlighted: false,
   },
   {
     icon: faBookOpen,
@@ -109,10 +115,11 @@ const FEES = [
       "Préparation aux examens",
       "Orientation post-bac",
     ],
+    highlighted: false,
   },
 ];
 
-/* Avantages / Facilités de paiement */
+/* Facilités de paiement */
 const FACILITIES = [
   {
     icon: faHandHoldingDollar,
@@ -138,6 +145,46 @@ const DATES = [
   { period: "Début Septembre", label: "Rentrée scolaire officielle" },
 ];
 
+/* Atouts rapides du hero */
+const HERO_FACTS = [
+  "4 étapes simples",
+  "Réponse sous 72h",
+  "Paiement en 3 tranches",
+];
+
+/* Code-barres décoratif de la carte */
+const BARS = [
+  60, 100, 40, 80, 100, 50, 90, 30, 100, 70, 45, 85, 100, 55, 75, 35, 95, 100,
+  60, 40, 80, 100, 50, 90, 65, 100, 45, 85, 30, 100, 70, 55, 95, 40, 80, 100,
+];
+
+/* ------------------------------------------------------------------ */
+/*  En-tête de section                                                 */
+/* ------------------------------------------------------------------ */
+
+function SectionHeader({
+  label,
+  title,
+  subtitle,
+}: {
+  label: string;
+  title: React.ReactNode;
+  subtitle?: string;
+}) {
+  return (
+    <div className="mb-14 text-center">
+      <p
+        className="mb-3 text-xs font-bold uppercase tracking-widest"
+        style={{ color: BAMBIS_GOLD }}
+      >
+        {label}
+      </p>
+      <h2 className="text-3xl font-bold text-white lg:text-4xl">{title}</h2>
+      {subtitle && <p className="mt-3 text-sm text-gray-400">{subtitle}</p>}
+    </div>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 /*  Composant                                                          */
 /* ------------------------------------------------------------------ */
@@ -145,9 +192,9 @@ const DATES = [
 export default function AdmissionsPage() {
   return (
     <main className="flex flex-col">
-      {/* ================= HERO ================= */}
+      {/* ================= HERO : CARTE D'ELEVE ================= */}
       <section
-        className="relative min-h-[60vh] w-full overflow-hidden"
+        className="relative flex min-h-[85vh] w-full items-center overflow-hidden"
         style={{
           background: `linear-gradient(135deg, ${DARK_BG} 0%, #10321E 55%, #143F26 100%)`,
         }}
@@ -161,29 +208,11 @@ export default function AdmissionsPage() {
           style={{ backgroundColor: `${BAMBIS_GREEN}44` }}
         />
 
-        <div className="relative mx-auto flex max-w-7xl flex-col items-center gap-10 px-6 py-20 text-center lg:flex-row lg:gap-16 lg:px-12 lg:py-24 lg:text-left">
-          <div className="shrink-0">
-            <div
-              className="flex h-40 w-40 items-center justify-center rounded-full shadow-2xl lg:h-52 lg:w-52"
-              style={{
-                backgroundColor: "#ffffff",
-                boxShadow: `0 0 60px ${BAMBIS_GOLD}55`,
-              }}
-            >
-              <Image
-                src="/logo.png"
-                alt="Logo du Collège Les Bambis"
-                width={180}
-                height={180}
-                priority
-                className="h-32 w-32 object-contain lg:h-44 lg:w-44"
-              />
-            </div>
-          </div>
-
-          <div className="max-w-2xl">
+        <div className="relative mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-16 px-6 py-20 lg:grid-cols-2 lg:px-12">
+          {/* ============ TEXTE ============ */}
+          <div className="text-center lg:text-left">
             <p
-              className="mb-4 inline-block rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-widest"
+              className="mb-6 inline-block rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-widest"
               style={{
                 backgroundColor: `${BAMBIS_GOLD}22`,
                 color: BAMBIS_GOLD,
@@ -194,31 +223,49 @@ export default function AdmissionsPage() {
             </p>
 
             <h1
-              className="text-4xl font-bold leading-tight text-white lg:text-5xl"
+              className="text-4xl font-extrabold leading-[1.1] text-white sm:text-5xl lg:text-6xl"
               style={{ textShadow: "0 4px 20px rgba(0,0,0,0.4)" }}
             >
-              Rejoignez la famille <br />
-              <span style={{ color: BAMBIS_GOLD }}>Les Bambis</span>
+              Rejoignez la famille{" "}
+              <span className="block" style={{ color: BAMBIS_GOLD }}>
+                Les Bambis
+              </span>
             </h1>
 
-            <p className="mt-6 text-base leading-relaxed text-gray-200 lg:text-lg">
+            <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-gray-200 lg:mx-0 lg:text-lg">
               Les inscriptions sont ouvertes. Découvrez notre procédure
               d&apos;admission, les documents requis et les frais de
               scolarité.
             </p>
 
-            <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center lg:justify-start">
-              <Link
+            <div className="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start">
+              {HERO_FACTS.map((fact) => (
+                <span
+                  key={fact}
+                  className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold text-gray-100 backdrop-blur-sm"
+                  style={CARD}
+                >
+                  <FontAwesomeIcon
+                    icon={faCheckCircle}
+                    style={{ color: BAMBIS_GOLD }}
+                  />
+                  {fact}
+                </span>
+              ))}
+            </div>
+
+            <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row lg:justify-start">
+              <a
                 href="#procedure"
                 className="group inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold shadow-lg transition-all duration-300 hover:-translate-y-1"
                 style={{ backgroundColor: BAMBIS_GOLD, color: DARK_BG }}
               >
                 Voir la procédure
                 <FontAwesomeIcon
-                  icon={faArrowRight}
-                  className="transition-transform group-hover:translate-x-1"
+                  icon={faArrowDown}
+                  className="transition-transform group-hover:translate-y-1"
                 />
-              </Link>
+              </a>
               <Link
                 href="/portail-parents"
                 className="inline-flex items-center justify-center gap-2 rounded-full border-2 px-7 py-3.5 text-sm font-bold transition-all duration-300 hover:-translate-y-1 hover:bg-white/10"
@@ -226,6 +273,163 @@ export default function AdmissionsPage() {
               >
                 Portail Parents
               </Link>
+            </div>
+          </div>
+
+          {/* ============ CARTE D'ELEVE ============ */}
+          <div className="relative mx-auto w-full max-w-md">
+            <div
+              className="absolute inset-0 rounded-3xl blur-3xl"
+              style={{ backgroundColor: `${BAMBIS_GOLD}22` }}
+            />
+
+            <div
+              className="relative -rotate-3 rounded-3xl border p-6 shadow-2xl backdrop-blur-md transition-transform duration-500 hover:rotate-0 lg:p-8"
+              style={{
+                backgroundColor: "rgba(255, 255, 255, 0.06)",
+                borderColor: `${BAMBIS_GOLD}55`,
+              }}
+            >
+              {/* En-tête */}
+              <div
+                className="flex items-center gap-4 border-b pb-5"
+                style={{ borderColor: `${BAMBIS_GOLD}33` }}
+              >
+                <div
+                  className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full"
+                  style={{
+                    backgroundColor: "#ffffff",
+                    boxShadow: `0 0 30px ${BAMBIS_GOLD}55`,
+                  }}
+                >
+                  <Image
+                    src="/logo.png"
+                    alt="Logo du Collège Les Bambis"
+                    width={56}
+                    height={56}
+                    priority
+                    className="h-12 w-12 object-contain"
+                  />
+                </div>
+                <div>
+                  <p
+                    className="text-xs font-bold uppercase tracking-widest"
+                    style={{ color: BAMBIS_GOLD }}
+                  >
+                    Carte d&apos;élève
+                  </p>
+                  <p className="text-lg font-bold text-white">
+                    Collège Les Bambis
+                  </p>
+                </div>
+              </div>
+
+              {/* Corps */}
+              <div className="mt-5 grid grid-cols-[96px_1fr] gap-5">
+                <div
+                  className="flex h-28 items-center justify-center rounded-2xl border border-dashed"
+                  style={{
+                    borderColor: `${BAMBIS_GOLD}77`,
+                    backgroundColor: `${BAMBIS_GOLD}11`,
+                  }}
+                >
+                  <FontAwesomeIcon
+                    icon={faGraduationCap}
+                    className="text-3xl"
+                    style={{ color: BAMBIS_GOLD }}
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  {[
+                    { label: "Élève", value: "Votre enfant" },
+                    { label: "Classe", value: "SIL → Terminale" },
+                    { label: "Rentrée", value: "Début septembre" },
+                  ].map((field) => (
+                    <div key={field.label}>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                        {field.label}
+                      </p>
+                      <p className="text-sm font-bold text-white">
+                        {field.value}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Statut */}
+              <div
+                className="mt-6 flex items-center justify-between rounded-2xl border p-4"
+                style={{
+                  backgroundColor: `${BAMBIS_GREEN}22`,
+                  borderColor: `${BAMBIS_GOLD}55`,
+                }}
+              >
+                <span className="flex items-center gap-3 text-sm font-semibold text-white">
+                  <span className="relative flex h-3 w-3">
+                    <span
+                      className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"
+                      style={{ backgroundColor: BAMBIS_GOLD }}
+                    />
+                    <span
+                      className="relative inline-flex h-3 w-3 rounded-full"
+                      style={{ backgroundColor: BAMBIS_GOLD }}
+                    />
+                  </span>
+                  Inscriptions ouvertes
+                </span>
+                <FontAwesomeIcon
+                  icon={faCheckCircle}
+                  style={{ color: BAMBIS_GOLD }}
+                />
+              </div>
+
+              {/* Code-barres décoratif */}
+              <div
+                className="mt-5 flex h-8 items-end gap-[3px] opacity-60"
+                aria-hidden="true"
+              >
+                {BARS.map((h, i) => (
+                  <span
+                    key={i}
+                    className="w-[3px] rounded-sm"
+                    style={{ height: `${h}%`, backgroundColor: BAMBIS_GOLD }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Badges flottants */}
+            <div
+              className="absolute -right-2 -top-5 rounded-2xl border px-4 py-2.5 text-center shadow-xl backdrop-blur-md lg:-right-6"
+              style={{
+                backgroundColor: "rgba(255, 255, 255, 0.08)",
+                borderColor: `${BAMBIS_GOLD}55`,
+              }}
+            >
+              <p
+                className="text-xl font-bold leading-none"
+                style={{ color: BAMBIS_GOLD }}
+              >
+                72h
+              </p>
+              <p className="mt-1 text-[11px] text-gray-200">Réponse</p>
+            </div>
+            <div
+              className="absolute -bottom-5 -left-2 rounded-2xl border px-4 py-2.5 text-center shadow-xl backdrop-blur-md lg:-left-6"
+              style={{
+                backgroundColor: "rgba(255, 255, 255, 0.08)",
+                borderColor: `${BAMBIS_GOLD}55`,
+              }}
+            >
+              <p
+                className="text-xl font-bold leading-none"
+                style={{ color: BAMBIS_GOLD }}
+              >
+                4
+              </p>
+              <p className="mt-1 text-[11px] text-gray-200">étapes</p>
             </div>
           </div>
         </div>
@@ -239,128 +443,85 @@ export default function AdmissionsPage() {
           background: `linear-gradient(180deg, #0E2417 0%, #10321E 100%)`,
         }}
       >
-        <div className="mx-auto max-w-7xl px-6 lg:px-12">
-          <div className="mb-14 text-center">
-            <p
-              className="mb-3 text-xs font-bold uppercase tracking-widest"
-              style={{ color: BAMBIS_GOLD }}
-            >
-              Comment s&apos;inscrire ?
-            </p>
-            <h2 className="text-3xl font-bold text-white lg:text-4xl">
-              La procédure en 4 étapes
-            </h2>
-          </div>
+        <div className="mx-auto max-w-4xl px-6 lg:px-12">
+          <SectionHeader
+            label="Comment s'inscrire ?"
+            title="La procédure en 4 étapes"
+          />
 
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
-            {STEPS.map((step, idx) => (
-              <div
-                key={step.title}
-                className="relative rounded-2xl border p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-2"
-                style={{
-                  backgroundColor: "rgba(255, 255, 255, 0.04)",
-                  borderColor: `${BAMBIS_GOLD}33`,
-                }}
-              >
-                <span
-                  className="absolute top-4 right-4 text-5xl font-bold opacity-10"
-                  style={{ color: BAMBIS_GOLD }}
+          <ol className="relative space-y-8">
+            {/* Ligne verticale */}
+            <div
+              className="absolute left-7 top-0 h-full w-0.5 -translate-x-1/2"
+              style={{
+                background: `linear-gradient(180deg, ${BAMBIS_GOLD}00, ${BAMBIS_GOLD}, ${BAMBIS_GOLD}00)`,
+              }}
+            />
+
+            {STEPS.map((step) => (
+              <li key={step.title} className="relative flex items-start gap-6">
+                <div
+                  className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-4 text-lg font-extrabold shadow-lg"
+                  style={{
+                    backgroundColor: BAMBIS_GOLD,
+                    color: DARK_BG,
+                    borderColor: DARK_BG,
+                  }}
                 >
                   {step.step}
-                </span>
-                <div
-                  className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl shadow-lg"
-                  style={{ backgroundColor: BAMBIS_GOLD, color: DARK_BG }}
-                >
-                  <FontAwesomeIcon icon={step.icon} className="text-xl" />
                 </div>
-                <h3 className="mb-3 text-lg font-bold text-white">
-                  {step.title}
-                </h3>
-                <p className="text-sm leading-relaxed text-gray-300">
-                  {step.desc}
-                </p>
 
-                {/* Flèche entre les étapes */}
-                {idx < STEPS.length - 1 && (
-                  <div
-                    className="absolute -right-4 top-1/2 hidden -translate-y-1/2 lg:block"
-                    style={{ color: BAMBIS_GOLD }}
-                  >
-                    <FontAwesomeIcon icon={faArrowRight} className="text-lg" />
+                <div
+                  className="flex-1 rounded-2xl border p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1"
+                  style={CARD}
+                >
+                  <div className="mb-2 flex items-center gap-3">
+                    <FontAwesomeIcon
+                      icon={step.icon}
+                      className="text-lg"
+                      style={{ color: BAMBIS_GOLD }}
+                    />
+                    <h3 className="text-lg font-bold text-white">
+                      {step.title}
+                    </h3>
                   </div>
-                )}
-              </div>
+                  <p className="text-sm leading-relaxed text-gray-300">
+                    {step.desc}
+                  </p>
+                </div>
+              </li>
             ))}
-          </div>
+          </ol>
         </div>
       </section>
 
-      {/* ================= DOCUMENTS ================= */}
+      {/* ================= DOCUMENTS + DATES ================= */}
       <section
         className="w-full py-20"
         style={{
           background: `linear-gradient(180deg, #10321E 0%, #0B1F14 100%)`,
         }}
       >
-        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 lg:grid-cols-2 lg:px-12">
-          <div>
-            <p
-              className="mb-3 text-xs font-bold uppercase tracking-widest"
-              style={{ color: BAMBIS_GOLD }}
-            >
-              Dossier d&apos;inscription
-            </p>
-            <h2 className="mb-6 text-3xl font-bold text-white lg:text-4xl">
-              Pièces à fournir
-            </h2>
-            <p className="mb-8 leading-relaxed text-gray-300">
-              Pour finaliser votre inscription, veuillez préparer les
-              documents suivants. Le dossier complet doit être déposé au
-              secrétariat de l&apos;établissement.
-            </p>
-
-            <ul className="space-y-4">
-              {DOCUMENTS.map((doc) => (
-                <li key={doc.label} className="flex items-center gap-4">
-                  <span
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
-                    style={{
-                      backgroundColor: `${BAMBIS_GOLD}1a`,
-                      color: BAMBIS_GOLD,
-                      border: `1px solid ${BAMBIS_GOLD}44`,
-                    }}
-                  >
-                    <FontAwesomeIcon icon={doc.icon} className="text-sm" />
-                  </span>
-                  <span className="text-gray-200">{doc.label}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
+        <div className="mx-auto grid max-w-7xl grid-cols-1 items-start gap-12 px-6 lg:grid-cols-2 lg:px-12">
           {/* Carte dates clés */}
           <div
             className="relative overflow-hidden rounded-3xl border p-8 backdrop-blur-sm lg:p-12"
-            style={{
-              backgroundColor: "rgba(255, 255, 255, 0.04)",
-              borderColor: `${BAMBIS_GOLD}33`,
-            }}
+            style={CARD}
           >
             <div
               className="absolute -top-20 -right-20 h-60 w-60 rounded-full blur-3xl"
               style={{ backgroundColor: `${BAMBIS_GOLD}22` }}
             />
             <div className="relative">
-              <div
-                className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg"
-                style={{ backgroundColor: BAMBIS_GOLD, color: DARK_BG }}
-              >
-                <FontAwesomeIcon icon={faClock} className="text-2xl" />
+              <div className="mb-6 flex items-center gap-4">
+                <div
+                  className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl shadow-lg"
+                  style={{ backgroundColor: BAMBIS_GOLD, color: DARK_BG }}
+                >
+                  <FontAwesomeIcon icon={faClock} className="text-xl" />
+                </div>
+                <h3 className="text-2xl font-bold text-white">Dates clés</h3>
               </div>
-              <h3 className="mb-6 text-2xl font-bold text-white">
-                Dates clés
-              </h3>
 
               <div className="space-y-4">
                 {DATES.map((item) => (
@@ -403,6 +564,46 @@ export default function AdmissionsPage() {
               </div>
             </div>
           </div>
+
+          {/* Pièces à fournir */}
+          <div>
+            <p
+              className="mb-3 text-xs font-bold uppercase tracking-widest"
+              style={{ color: BAMBIS_GOLD }}
+            >
+              Dossier d&apos;inscription
+            </p>
+            <h2 className="mb-6 text-3xl font-bold text-white lg:text-4xl">
+              Pièces à fournir
+            </h2>
+            <p className="mb-8 leading-relaxed text-gray-300">
+              Pour finaliser votre inscription, veuillez préparer les
+              documents suivants. Le dossier complet doit être déposé au
+              secrétariat de l&apos;établissement.
+            </p>
+
+            <ul className="space-y-3">
+              {DOCUMENTS.map((doc) => (
+                <li
+                  key={doc.label}
+                  className="flex items-center gap-4 rounded-xl border p-3 backdrop-blur-sm"
+                  style={CARD}
+                >
+                  <span
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
+                    style={{
+                      backgroundColor: `${BAMBIS_GOLD}1a`,
+                      color: BAMBIS_GOLD,
+                      border: `1px solid ${BAMBIS_GOLD}44`,
+                    }}
+                  >
+                    <FontAwesomeIcon icon={doc.icon} className="text-sm" />
+                  </span>
+                  <span className="text-gray-200">{doc.label}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </section>
 
@@ -413,27 +614,20 @@ export default function AdmissionsPage() {
           background: `linear-gradient(180deg, #0B1F14 0%, #0E2417 100%)`,
         }}
       >
-        <div className="mx-auto max-w-7xl px-6 lg:px-12">
-          <div className="mb-14 text-center">
-            <p
-              className="mb-3 text-xs font-bold uppercase tracking-widest"
-              style={{ color: BAMBIS_GOLD }}
-            >
-              Frais de scolarité
-            </p>
-            <h2 className="text-3xl font-bold text-white lg:text-4xl">
-              Tarifs par cycle
-            </h2>
-            <p className="mt-3 text-sm text-gray-400">
-              Tarifs indicatifs pour l&apos;année scolaire en cours
-            </p>
-          </div>
+        <div className="mx-auto max-w-6xl px-6 lg:px-12">
+          <SectionHeader
+            label="Frais de scolarité"
+            title="Tarifs par cycle"
+            subtitle="Tarifs indicatifs pour l'année scolaire en cours"
+          />
 
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             {FEES.map((fee) => (
               <div
                 key={fee.level}
-                className="relative overflow-hidden rounded-3xl border backdrop-blur-sm transition-all duration-300 hover:-translate-y-2"
+                className={`relative overflow-hidden rounded-3xl border backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 ${
+                  fee.highlighted ? "md:z-10 md:scale-105" : ""
+                }`}
                 style={{
                   backgroundColor: fee.highlighted
                     ? `${BAMBIS_GOLD}1a`
@@ -545,41 +739,47 @@ export default function AdmissionsPage() {
           background: `linear-gradient(180deg, #0E2417 0%, #10321E 100%)`,
         }}
       >
-        <div className="mx-auto max-w-7xl px-6 lg:px-12">
-          <div className="mb-14 text-center">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 lg:grid-cols-[1fr_1.4fr] lg:px-12">
+          {/* Titre */}
+          <div className="text-center lg:text-left">
             <p
               className="mb-3 text-xs font-bold uppercase tracking-widest"
               style={{ color: BAMBIS_GOLD }}
             >
               Facilités
             </p>
-            <h2 className="text-3xl font-bold text-white lg:text-4xl">
+            <h2 className="mb-6 text-3xl font-bold text-white lg:text-4xl">
               Paiement & réductions
             </h2>
+            <p className="leading-relaxed text-gray-300">
+              Nous voulons que chaque famille puisse offrir à son enfant une
+              éducation de qualité. Découvrez les solutions qui facilitent le
+              règlement de la scolarité.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+          {/* Cartes */}
+          <div className="space-y-5">
             {FACILITIES.map((item) => (
               <div
                 key={item.title}
-                className="group rounded-2xl border p-6 text-center backdrop-blur-sm transition-all duration-300 hover:-translate-y-2"
-                style={{
-                  backgroundColor: "rgba(255, 255, 255, 0.04)",
-                  borderColor: `${BAMBIS_GOLD}33`,
-                }}
+                className="group flex items-start gap-5 rounded-2xl border p-6 backdrop-blur-sm transition-all duration-300 hover:translate-x-1"
+                style={CARD}
               >
                 <div
-                  className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg transition-transform duration-300 group-hover:scale-110"
+                  className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl shadow-lg transition-transform duration-300 group-hover:scale-110"
                   style={{ backgroundColor: BAMBIS_GOLD, color: DARK_BG }}
                 >
                   <FontAwesomeIcon icon={item.icon} className="text-2xl" />
                 </div>
-                <h3 className="mb-3 text-lg font-bold text-white">
-                  {item.title}
-                </h3>
-                <p className="text-sm leading-relaxed text-gray-300">
-                  {item.desc}
-                </p>
+                <div>
+                  <h3 className="mb-2 text-lg font-bold text-white">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm leading-relaxed text-gray-300">
+                    {item.desc}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
@@ -593,42 +793,56 @@ export default function AdmissionsPage() {
           background: `linear-gradient(135deg, #0B1F14 0%, #143F26 100%)`,
         }}
       >
-        <div className="mx-auto max-w-4xl px-6 text-center lg:px-12">
+        <div className="mx-auto max-w-6xl px-6 lg:px-12">
           <div
-            className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg"
-            style={{ backgroundColor: BAMBIS_GOLD, color: DARK_BG }}
+            className="relative overflow-hidden rounded-3xl border p-8 backdrop-blur-sm lg:p-12"
+            style={CARD}
           >
-            <FontAwesomeIcon icon={faUserPlus} className="text-2xl" />
-          </div>
+            <div
+              className="absolute -top-20 -left-20 h-60 w-60 rounded-full blur-3xl"
+              style={{ backgroundColor: `${BAMBIS_GOLD}22` }}
+            />
 
-          <h2 className="mb-4 text-3xl font-bold text-white lg:text-4xl">
-            Prêt à inscrire votre enfant ?
-          </h2>
-          <p className="mb-8 text-lg text-gray-300">
-            Retirez votre dossier d&apos;inscription dès aujourd&apos;hui ou
-            contactez-nous pour plus d&apos;informations.
-          </p>
+            <div className="relative flex flex-col items-center gap-8 text-center lg:flex-row lg:text-left">
+              <div
+                className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl shadow-lg"
+                style={{ backgroundColor: BAMBIS_GOLD, color: DARK_BG }}
+              >
+                <FontAwesomeIcon icon={faUserPlus} className="text-3xl" />
+              </div>
 
-          <div className="flex flex-col justify-center gap-4 sm:flex-row">
-            <Link
-              href="/portail-parents"
-              className="group inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 text-sm font-bold shadow-lg transition-all duration-300 hover:-translate-y-1"
-              style={{ backgroundColor: BAMBIS_GOLD, color: DARK_BG }}
-            >
-              <FontAwesomeIcon icon={faUsers} />
-              Portail Parents
-              <FontAwesomeIcon
-                icon={faArrowRight}
-                className="transition-transform group-hover:translate-x-1"
-              />
-            </Link>
-            <Link
-              href="/a-propos"
-              className="inline-flex items-center justify-center gap-2 rounded-full border-2 px-8 py-4 text-sm font-bold transition-all duration-300 hover:-translate-y-1 hover:bg-white/10"
-              style={{ borderColor: "#ffffff", color: "#ffffff" }}
-            >
-              En savoir plus
-            </Link>
+              <div className="flex-1">
+                <h2 className="mb-3 text-3xl font-bold text-white lg:text-4xl">
+                  Prêt à inscrire votre enfant ?
+                </h2>
+                <p className="text-lg text-gray-300">
+                  Retirez votre dossier d&apos;inscription dès aujourd&apos;hui
+                  ou contactez-nous pour plus d&apos;informations.
+                </p>
+              </div>
+
+              <div className="flex shrink-0 flex-col gap-4 sm:flex-row lg:flex-col">
+                <Link
+                  href="/portail-parents"
+                  className="group inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 text-sm font-bold shadow-lg transition-all duration-300 hover:-translate-y-1"
+                  style={{ backgroundColor: BAMBIS_GOLD, color: DARK_BG }}
+                >
+                  <FontAwesomeIcon icon={faUsers} />
+                  Portail Parents
+                  <FontAwesomeIcon
+                    icon={faArrowRight}
+                    className="transition-transform group-hover:translate-x-1"
+                  />
+                </Link>
+                <Link
+                  href="/a-propos"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border-2 px-8 py-4 text-sm font-bold transition-all duration-300 hover:-translate-y-1 hover:bg-white/10"
+                  style={{ borderColor: "#ffffff", color: "#ffffff" }}
+                >
+                  En savoir plus
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
