@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useRouter } from "next/navigation";
+import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 import {
   faUserLock,
   faEnvelope,
@@ -14,10 +16,10 @@ import {
   faKey,
   faShieldHalved,
   faCircleInfo,
-  faGraduationCap,
-  faFileLines,
+  faPenToSquare,
+  faClipboardCheck,
   faCalendarCheck,
-  faBell,
+  faComments,
   faHeadset,
   faCheckCircle,
 } from "@fortawesome/free-solid-svg-icons";
@@ -27,30 +29,30 @@ import {
 /* ------------------------------------------------------------------ */
 
 const BAMBIS_GREEN = "#2E7D32";
-const BAMBIS_GOLD  = "#F4B400";
-const DARK_BG      = "#0B1F14";
+const BAMBIS_GOLD = "#F4B400";
+const DARK_BG = "#0B1F14";
 
 /* Fonctionnalités du portail */
 const FEATURES = [
   {
-    icon: faFileLines,
-    title: "Bulletins en ligne",
-    desc: "Consultez les notes et bulletins de votre enfant dès leur publication.",
+    icon: faPenToSquare,
+    title: "Saisie des notes",
+    desc: "Enregistrez les notes et appréciations de vos classes en quelques clics.",
+  },
+  {
+    icon: faClipboardCheck,
+    title: "Appel et présences",
+    desc: "Faites l'appel en ligne et suivez l'assiduité de vos élèves.",
   },
   {
     icon: faCalendarCheck,
     title: "Emploi du temps",
-    desc: "Accédez au planning des cours, aux devoirs et aux évaluations.",
+    desc: "Consultez votre planning de cours, vos salles et vos surveillances.",
   },
   {
-    icon: faBell,
-    title: "Notifications",
-    desc: "Recevez les annonces importantes de l'établissement en temps réel.",
-  },
-  {
-    icon: faGraduationCap,
-    title: "Suivi scolaire",
-    desc: "Suivez la progression et l'assiduité de votre enfant tout au long de l'année.",
+    icon: faComments,
+    title: "Messagerie parents",
+    desc: "Échangez directement avec les parents et l'administration.",
   },
 ];
 
@@ -58,16 +60,38 @@ const FEATURES = [
 /*  Composant                                                          */
 /* ------------------------------------------------------------------ */
 
-export default function PortailParentsPage() {
+export default function PortailEnseignantsPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const router = useRouter();
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: connecter à votre backend / API d'authentification
-    console.log({ email, password, remember });
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error ?? "Une erreur est survenue.");
+        return;
+      }
+
+      router.push("/dashboard");
+      router.refresh();
+    } catch {
+      setError("Impossible de contacter le serveur.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -120,29 +144,29 @@ export default function PortailParentsPage() {
                 border: `1px solid ${BAMBIS_GOLD}55`,
               }}
             >
-              🔒 Espace sécurisé
+              🔒 Espace réservé au personnel
             </p>
 
             <h1
               className="text-4xl font-bold leading-tight text-white lg:text-5xl"
               style={{ textShadow: "0 4px 20px rgba(0,0,0,0.4)" }}
             >
-              Portail <span style={{ color: BAMBIS_GOLD }}>Parents</span>
+              Portail <span style={{ color: BAMBIS_GOLD }}>Enseignants</span>
             </h1>
 
             <p className="mt-6 text-base leading-relaxed text-gray-200 lg:text-lg">
-              Accédez à l&apos;espace personnel de votre enfant : notes,
-              bulletins, emploi du temps et communications de
-              l&apos;établissement.
+              Accédez à votre espace professionnel : saisie des notes, appel,
+              emploi du temps et communication avec les parents et
+              l&apos;administration.
             </p>
 
             {/* Liste des fonctionnalités */}
             <ul className="mt-8 space-y-4 text-left">
               {[
-                "Consultation des notes et bulletins",
-                "Suivi de l'assiduité et du comportement",
-                "Communication directe avec les enseignants",
-                "Paiement en ligne des frais de scolarité",
+                "Saisie des notes et des appréciations",
+                "Appel et suivi des présences",
+                "Consultation de l'emploi du temps",
+                "Communication avec les parents et l'administration",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-3">
                   <FontAwesomeIcon
@@ -179,13 +203,10 @@ export default function PortailParentsPage() {
                     className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg"
                     style={{ backgroundColor: BAMBIS_GOLD, color: DARK_BG }}
                   >
-                    <FontAwesomeIcon
-                      icon={faUserLock}
-                      className="text-2xl"
-                    />
+                    <FontAwesomeIcon icon={faUserLock} className="text-2xl" />
                   </div>
                   <h2 className="text-2xl font-bold text-white">
-                    Connexion à votre espace
+                    Connexion enseignant
                   </h2>
                   <p className="mt-2 text-sm text-gray-400">
                     Entrez vos identifiants pour continuer
@@ -216,11 +237,9 @@ export default function PortailParentsPage() {
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="parent@exemple.com"
+                        placeholder="enseignant@exemple.com"
                         className="w-full rounded-xl border bg-white/5 py-3 pl-11 pr-4 text-sm text-white placeholder-gray-500 outline-none transition-all focus:bg-white/10"
-                        style={{
-                          borderColor: `${BAMBIS_GOLD}44`,
-                        }}
+                        style={{ borderColor: `${BAMBIS_GOLD}44` }}
                       />
                     </div>
                   </div>
@@ -249,9 +268,7 @@ export default function PortailParentsPage() {
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="••••••••"
                         className="w-full rounded-xl border bg-white/5 py-3 pl-11 pr-12 text-sm text-white placeholder-gray-500 outline-none transition-all focus:bg-white/10"
-                        style={{
-                          borderColor: `${BAMBIS_GOLD}44`,
-                        }}
+                        style={{ borderColor: `${BAMBIS_GOLD}44` }}
                       />
                       <button
                         type="button"
@@ -283,14 +300,22 @@ export default function PortailParentsPage() {
                       Se souvenir de moi
                     </label>
                     <Link
-                      href="/portail-parents/mot-de-passe-oublie"
+                      href="/portail-enseignants/mot-de-passe-oublie"
                       className="font-semibold transition-colors hover:text-white"
                       style={{ color: BAMBIS_GOLD }}
                     >
                       Mot de passe oublié ?
                     </Link>
                   </div>
-
+                  {error && (
+                    <div
+                      role="alert"
+                      className="flex items-start gap-3 rounded-xl border border-red-500/40 bg-red-500/10 p-3 text-xs text-red-200"
+                    >
+                      <FontAwesomeIcon icon={faTriangleExclamation} className="mt-0.5 shrink-0" />
+                      {error}
+                    </div>
+                  )}
                   {/* Bouton de connexion */}
                   <button
                     type="submit"
@@ -334,15 +359,15 @@ export default function PortailParentsPage() {
                       style={{ color: BAMBIS_GOLD }}
                     />
                     <p className="text-xs leading-relaxed text-gray-200">
-                      Pas encore de compte ?{" "}
+                      Pas encore d&apos;identifiants ?{" "}
                       <Link
-                        href="/admissions"
+                        href="/contact"
                         className="font-bold underline transition-colors hover:text-white"
                         style={{ color: BAMBIS_GOLD }}
                       >
-                        Contactez le secrétariat
+                        Contactez l&apos;administration
                       </Link>{" "}
-                      pour obtenir vos identifiants.
+                      pour obtenir votre accès.
                     </p>
                   </div>
                 </div>
@@ -377,7 +402,7 @@ export default function PortailParentsPage() {
               Ce que vous pouvez faire
             </p>
             <h2 className="text-3xl font-bold text-white lg:text-4xl">
-              Un espace complet pour les parents
+              Un espace complet pour les enseignants
             </h2>
           </div>
 
@@ -428,7 +453,7 @@ export default function PortailParentsPage() {
             Besoin d&apos;aide ?
           </h2>
           <p className="mb-8 text-lg text-gray-300">
-            Notre secrétariat est disponible pour vous accompagner dans
+            L&apos;administration est disponible pour vous accompagner dans
             l&apos;utilisation du portail et la gestion de votre compte.
           </p>
 
@@ -439,18 +464,18 @@ export default function PortailParentsPage() {
               style={{ backgroundColor: BAMBIS_GOLD, color: DARK_BG }}
             >
               <FontAwesomeIcon icon={faHeadset} />
-              Contacter le secrétariat
+              Contacter l&apos;administration
               <FontAwesomeIcon
                 icon={faArrowRight}
                 className="transition-transform group-hover:translate-x-1"
               />
             </Link>
             <Link
-              href="/admissions"
+              href="/"
               className="inline-flex items-center justify-center gap-2 rounded-full border-2 px-8 py-4 text-sm font-bold transition-all duration-300 hover:-translate-y-1 hover:bg-white/10"
               style={{ borderColor: "#ffffff", color: "#ffffff" }}
             >
-              Créer un compte
+              Retour à l&apos;accueil
             </Link>
           </div>
         </div>
