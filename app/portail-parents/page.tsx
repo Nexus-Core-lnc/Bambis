@@ -65,9 +65,10 @@ export default function PortailEnseignantsPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
-  const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -76,7 +77,7 @@ export default function PortailEnseignantsPage() {
       const res = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, remember }),
       });
       const data = await res.json();
 
@@ -307,23 +308,30 @@ export default function PortailEnseignantsPage() {
                       Mot de passe oublié ?
                     </Link>
                   </div>
+
+                  {/* Message d'erreur (une seule fois) */}
                   {error && (
                     <div
                       role="alert"
                       className="flex items-start gap-3 rounded-xl border border-red-500/40 bg-red-500/10 p-3 text-xs text-red-200"
                     >
-                      <FontAwesomeIcon icon={faTriangleExclamation} className="mt-0.5 shrink-0" />
+                      <FontAwesomeIcon
+                        icon={faTriangleExclamation}
+                        className="mt-0.5 shrink-0"
+                      />
                       {error}
                     </div>
                   )}
+
                   {/* Bouton de connexion */}
                   <button
                     type="submit"
-                    className="group flex w-full items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-bold shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+                    disabled={loading}
+                    className="group flex w-full items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-bold shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
                     style={{ backgroundColor: BAMBIS_GOLD, color: DARK_BG }}
                   >
                     <FontAwesomeIcon icon={faKey} />
-                    Se connecter
+                    {loading ? "Connexion..." : "Se connecter"}
                     <FontAwesomeIcon
                       icon={faArrowRight}
                       className="transition-transform group-hover:translate-x-1"

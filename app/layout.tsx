@@ -4,6 +4,7 @@ import { Comfortaa } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { getSession } from "@/lib/session";
 
 const comfortaa = Comfortaa({
   variable: "--font-comfortaa",
@@ -21,11 +22,17 @@ export const metadata: Metadata = {
     "Site officiel du Collège Privé Laïc Bilingue Les Bambis — Excellence, discipline et bilinguisme au service de la réussite.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const session = await getSession();
+
   return (
     <html lang="fr" className={`${comfortaa.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-comfortaa bg-white text-bambis-green">
-        <Navbar />
+        <Navbar isLoggedIn={!!session} />
         <main className="flex-1 pt-[15vh]">{children}</main>
         <Footer />
       </body>

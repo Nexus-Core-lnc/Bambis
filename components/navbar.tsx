@@ -10,6 +10,7 @@ import {
   faUserPlus,
   faUsers,
   faUserLock,
+  faGauge,
   faBars,
   faXmark,
   faChevronDown,
@@ -72,7 +73,11 @@ const NAV_ITEMS: NavItem[] = [
 /*  Composant                                                          */
 /* ------------------------------------------------------------------ */
 
-export default function Navbar() {
+export default function Navbar({
+  isLoggedIn = false,
+}: {
+  isLoggedIn?: boolean;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
 
@@ -80,6 +85,15 @@ export default function Navbar() {
     setIsOpen(false);
     setOpenSubmenu(null);
   };
+
+  /* Bouton d'action : portail si déconnecté, dashboard si connecté */
+  const cta = isLoggedIn
+    ? { href: "/dashboard", label: "Mon espace", icon: faGauge }
+    : {
+        href: "/portail-enseignants",
+        label: "Portail Enseignants",
+        icon: faUserLock,
+      };
 
   return (
     <header
@@ -198,12 +212,12 @@ export default function Navbar() {
 
         {/* ---------- CTA DESKTOP ---------- */}
         <Link
-          href="/portail-parents"
+          href={cta.href}
           className="hidden shrink-0 items-center gap-2 rounded-full px-5 py-3 text-sm font-bold shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg md:inline-flex lg:px-6"
           style={{ backgroundColor: BAMBIS_GOLD, color: BAMBIS_GREEN }}
         >
-          <FontAwesomeIcon icon={faUserLock} />
-          <span className="whitespace-nowrap">Portail Parents</span>
+          <FontAwesomeIcon icon={cta.icon} />
+          <span className="whitespace-nowrap">{cta.label}</span>
         </Link>
 
         {/* ---------- BURGER MOBILE ---------- */}
@@ -223,7 +237,7 @@ export default function Navbar() {
       {/* ---------- MENU MOBILE DÉROULANT ---------- */}
       <div
         id="mobile-menu"
-        className={`absolute left-0 top-full w-full overflow-hidden rounded-b-3xl shadow-xl transition-[max-height,opacity] duration-300 ease-in-out md:hidden bg-gradient-to-b from-white/95 to-cyan-50/95 backdrop-blur-lg ${
+        className={`absolute left-0 top-full w-full overflow-hidden rounded-b-3xl bg-linear-to-b from-white/95 to-cyan-50/95 shadow-xl backdrop-blur-lg transition-[max-height,opacity] duration-300 ease-in-out md:hidden ${
           isOpen ? "max-h-[80vh] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
@@ -301,13 +315,13 @@ export default function Navbar() {
 
         <div className="px-6 pb-6">
           <Link
-            href="/portail-parents"
+            href={cta.href}
             onClick={closeMobile}
             className="flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold shadow-md transition-transform active:scale-95"
             style={{ backgroundColor: BAMBIS_GOLD, color: BAMBIS_GREEN }}
           >
-            <FontAwesomeIcon icon={faUserLock} />
-            Portail Parents
+            <FontAwesomeIcon icon={cta.icon} />
+            {cta.label}
           </Link>
         </div>
       </div>
